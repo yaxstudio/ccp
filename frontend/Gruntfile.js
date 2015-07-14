@@ -169,7 +169,7 @@ module.exports = function(grunt) {
 		connect: {
 		    watch: {
 		      	options: {
-		        	port: 8000,
+		        	port: 8001,
 		        	base: '.',
 		        	middleware:function(connect,options,middlewares){
 		        		middlewares.unshift(function(req,res,next){
