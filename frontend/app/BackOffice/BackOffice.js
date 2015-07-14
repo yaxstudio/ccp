@@ -90,10 +90,10 @@
     var config;
 
         // URL DOMAINS
-        if (location.host === "global2.laureate.net" || location.host==="www.global2.laureate.net") {
+        if (location.host === "copypageapp.appspot.com" || location.host==="www.copypageapp.appspot.com") {
             //prod
             config = {
-                apiURL: 'https://qa-dot-api-dot-qa-liugateway.appspot.com/_ah/api'                
+                apiURL: 'https://1-dot-api-dot-copypageapp.appspot.com/_ah/api'                
             };
         } else if (location.host === "qa-liugateway.appspot.com" || location.host==="www.qa-liugateway.appspot.com") {
             //ssi
