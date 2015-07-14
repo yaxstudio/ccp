@@ -83,7 +83,8 @@
 
     BackOffice.value('GlobalUser', {        
         name: "",
-        email: ""
+        email: "",
+        user:""
     });
 
     var config;
@@ -102,12 +103,12 @@
         } else {
             //dev
             config = {                 
-                apiURL: 'http://yaxstudio.16mb.com'                 
+                apiURL: 'http://localhost:8080/_ah/api'                 
             };
         }
 
         config.deploy_current_version = "1.0";
-        config.apiEndPointGlobal = 'global';
+        config.apiEndPoint = 'ferris';
         config.apiVersion = 'v1';
 
     BackOffice.value('GlobalSettings',config);

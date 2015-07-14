@@ -83,7 +83,8 @@
 
     BackOffice.value('GlobalUser', {        
         name: "",
-        email: ""
+        email: "",
+        user:""
     });
 
     var config;
@@ -102,12 +103,12 @@
         } else {
             //dev
             config = {                 
-                apiURL: 'http://yaxstudio.16mb.com'                 
+                apiURL: 'http://localhost:8080/_ah/api'                 
             };
         }
 
         config.deploy_current_version = "1.0";
-        config.apiEndPointGlobal = 'global';
+        config.apiEndPoint = 'ferris';
         config.apiVersion = 'v1';
 
     BackOffice.value('GlobalSettings',config);
@@ -1173,16 +1174,14 @@ BackOffice.filter('TrimQuote', function() {
 		function($scope, $http, $stateParams, cssInjector, $location, GlobalUser, __Login) {
 			
 			$scope.user = {
-				email: "",
+				username: "",
 				password: ""
 			};
 
-			$scope.signin = function(){
-				console.log($scope.user.email);
-				console.log($scope.user.password);
-				 __Login.getGlobalLoggedUser({
-					'Username': 'handerson.contreras@gmail.com',
-					'Password': '123456'});
+			$scope.signin = function(){				
+				__Login.setLoginData({
+					'username': $scope.user.username,
+					'password': $scope.user.password});
 			};			
 		}
 	];
@@ -1198,16 +1197,16 @@ BackOffice.filter('TrimQuote', function() {
             var GPservices = {
                 getGlobalLoggedUser: function(params) {                    
                     var loggedUser = $http({
-                        'method': 'GET',                        
-                        'url': GlobalSettings.apiURL + '/CCPLoginWS.php'
-                        //'url': 'https://master-dot-api-dot-liugateway.appspot.com/_ah/api/global/v1/collections/SignatureProgram/business-suite-en/resources'
+                        'method': 'POST',                        
+                        'url': GlobalSettings.apiURL + '/' + GlobalSettings.apiEndPoint + '/' + GlobalSettings.apiVersion + '/collections/auth/login',
+                        params:params
                     });
 
                     return loggedUser;
                 },
                 setLoginData: function(params) {
                     var self = this;
-                    var userinfo = self.getGlobalLoggedUser();
+                    var userinfo = self.getGlobalLoggedUser(params);
 
                     userinfo.then(function(response) {
                         console.log(response);
@@ -1215,13 +1214,13 @@ BackOffice.filter('TrimQuote', function() {
                             GlobalUser.logged = false;
                         } else {
                             GlobalUser.logged = true;
-                        }
-                        
-                        GlobalUser.email = response.data.email;                                               
-
-                        $timeout(function() {
-                            $rootScope.$emit('Global.UserLogin', response.data.email);
-                        });
+                            GlobalUser.email = response.data.email;
+                            GlobalUser.user = response.data.user;
+                            $location.path('/main/index');
+                            $timeout(function() {
+                                $rootScope.$emit('Global.UserLogin', response.data.email);
+                            });
+                        }                                               
 
                     });
                 }

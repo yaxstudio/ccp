@@ -5,16 +5,14 @@
 		function($scope, $http, $stateParams, cssInjector, $location, GlobalUser, __Login) {
 			
 			$scope.user = {
-				email: "",
+				username: "",
 				password: ""
 			};
 
-			$scope.signin = function(){
-				console.log($scope.user.email);
-				console.log($scope.user.password);
-				 __Login.getGlobalLoggedUser({
-					'Username': 'handerson.contreras@gmail.com',
-					'Password': '123456'});
+			$scope.signin = function(){				
+				__Login.setLoginData({
+					'username': $scope.user.username,
+					'password': $scope.user.password});
 			};			
 		}
 	];
