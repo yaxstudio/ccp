@@ -25,6 +25,7 @@
                         } else {
                             GlobalUser.logged = true;
                             GlobalUser.email = response.data.email;
+                            console.log(GlobalUser.email);
                             GlobalUser.user = response.data.user;
                             $location.path('/main/index');
                             $timeout(function() {
@@ -32,6 +33,31 @@
                             });
                         }                                               
 
+                    });
+                },
+                setRegister: function(params){
+                    var register = $http({
+                        'method': 'POST',                        
+                        'url': GlobalSettings.apiURL + '/' + GlobalSettings.apiEndPoint + '/' + GlobalSettings.apiVersion + '/collections/auth/register',
+                        params:params
+                    });
+                    return register;
+                },
+                register: function(params){
+                    var self = this;
+                    var user = self.setRegister(params);
+                    user.then(function(response){
+                        if (response.data.email === "") {
+                            GlobalUser.logged = false;
+                        } else {
+                            GlobalUser.logged = true;
+                            GlobalUser.email = response.data.email;
+                            GlobalUser.user = response.data.user;
+                            $location.path('/main/index');
+                            $timeout(function() {
+                                $rootScope.$emit('Global.UserLogin', response.data.email);
+                            });
+                        }  
                     });
                 }
             };

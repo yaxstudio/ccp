@@ -1156,10 +1156,22 @@ BackOffice.filter('TrimQuote', function() {
 (function(namespace, undefined) {
 	'use strict';
 
-	var RegisterController = ['$scope', '$http', '$stateParams',  'cssInjector','$location',
-		function($scope, $http, $stateParams, cssInjector, $location) {
+	var RegisterController = ['$scope', '$http', '$stateParams',  'cssInjector','$location', '__Login',
+		function($scope, $http, $stateParams, cssInjector, $location, __Login) {
+
+			$scope.user = {
+				email: "",
+				username: "",
+				password: ""
+			};
+
 			$scope.register = function(){
-				alert();
+				if($scope.user.email !== "" && $scope.user.username !== "" && $scope.user.password !== ""){
+					__Login.register({
+						'email': $scope.user.email,
+						'username': $scope.user.username,
+						'password': $scope.user.password});
+				}
 			};			
 		}
 	];
@@ -1215,6 +1227,7 @@ BackOffice.filter('TrimQuote', function() {
                         } else {
                             GlobalUser.logged = true;
                             GlobalUser.email = response.data.email;
+                            console.log(GlobalUser.email);
                             GlobalUser.user = response.data.user;
                             $location.path('/main/index');
                             $timeout(function() {
@@ -1222,6 +1235,31 @@ BackOffice.filter('TrimQuote', function() {
                             });
                         }                                               
 
+                    });
+                },
+                setRegister: function(params){
+                    var register = $http({
+                        'method': 'POST',                        
+                        'url': GlobalSettings.apiURL + '/' + GlobalSettings.apiEndPoint + '/' + GlobalSettings.apiVersion + '/collections/auth/register',
+                        params:params
+                    });
+                    return register;
+                },
+                register: function(params){
+                    var self = this;
+                    var user = self.setRegister(params);
+                    user.then(function(response){
+                        if (response.data.email === "") {
+                            GlobalUser.logged = false;
+                        } else {
+                            GlobalUser.logged = true;
+                            GlobalUser.email = response.data.email;
+                            GlobalUser.user = response.data.user;
+                            $location.path('/main/index');
+                            $timeout(function() {
+                                $rootScope.$emit('Global.UserLogin', response.data.email);
+                            });
+                        }  
                     });
                 }
             };
