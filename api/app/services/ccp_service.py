@@ -55,19 +55,22 @@ class CcpService(Service):
 
     @auto_method(path='auth/save_links', name="save_links", http_method="POST")
     def save_links(self, request=(LinksMessages,)):
-        link = Links(
-            link_1=getattr(request, 'link_1'),
-            link_2=getattr(request, 'link_2'),
-            link_3=getattr(request, 'link_3'),
-            link_4=getattr(request, 'link_4'),
-            link_5=getattr(request, 'link_5'),
-            link_6=getattr(request, 'link_6'),
-            link_7=getattr(request, 'link_7'),
-            link_8=getattr(request, 'link_8'),
-            link_9=getattr(request, 'link_9'),
-            link_10=getattr(request, 'link_10'),
-            user=ndb.Key(urlsafe=getattr(request, 'user')))
-        link.put()
+        try:
+            link = Links(
+                link_1=getattr(request, 'link_1'),
+                link_2=getattr(request, 'link_2'),
+                link_3=getattr(request, 'link_3'),
+                link_4=getattr(request, 'link_4'),
+                link_5=getattr(request, 'link_5'),
+                link_6=getattr(request, 'link_6'),
+                link_7=getattr(request, 'link_7'),
+                link_8=getattr(request, 'link_8'),
+                link_9=getattr(request, 'link_9'),
+                link_10=getattr(request, 'link_10'),
+                user=ndb.Key(urlsafe=getattr(request, 'user')))
+            link.put()
+        except Exception, e:
+            raise f3.BadRequestException(e)
 
 
 
