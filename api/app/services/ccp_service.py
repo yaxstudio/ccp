@@ -7,8 +7,14 @@ from google.appengine.ext import ndb
 from app.models.ccp import User, Links
 from app.messages.ccp_messages import UserMessage, UserLogginMessage
 
+GenericLink = protopigeon.model_message(Links, exclude="id")
 UserMessageP = protopigeon.model_message(User)
-LinksMessages = protopigeon.model_message(Links)
+PublicLinkMessages = protopigeon.model_message(Links, exclude=("link_6", "link_7", "link_8", "link_9", "link_10"))
+PrivateLinkMessages = protopigeon.model_message(Links, exclude=("link_1", "link_2", "link_3", "link_4", "link_5"))
+
+
+class ParamsMessage(messages.Message):
+    user = messages.StringField(1, required=True)
 
 
 @auto_service(endpoint="ferris", path="collections")
@@ -54,7 +60,7 @@ class CcpService(Service):
             raise f3.BadRequestException("user or password doesn't specified")
 
     @auto_method(path='auth/save_links', name="save_links", http_method="POST")
-    def save_links(self, request=(LinksMessages,)):
+    def save_links(self, request=(GenericLink,)):
         try:
             link = Links(
                 link_1=getattr(request, 'link_1'),
@@ -71,6 +77,24 @@ class CcpService(Service):
             link.put()
         except Exception, e:
             raise f3.BadRequestException(e)
+
+    @auto_method(returns=PublicLinkMessages, path='links/public/list', name="list_public_links", http_method="POST")
+    def list_public_links(self, request=(ParamsMessage,)):
+        user_key = ndb.Key(urlsafe=getattr(request, 'user'))
+        if user_key:
+            public_link = Links.query(Links.user == user_key).get()
+            return protopigeon.to_message(public_link, PublicLinkMessages)
+        else:
+            raise f3.NotFoundException("user not exist")
+
+    @auto_method(returns=PrivateLinkMessages, path='links/private/list', name="list_private_links", http_method="POST")
+    def list_private_links(self, request=(ParamsMessage,)):
+        user_key = ndb.Key(urlsafe=getattr(request, 'user'))
+        if user_key:
+            private_link = Links.query(Links.user == user_key).get()
+            return protopigeon.to_message(private_link, PrivateLinkMessages)
+        else:
+            raise f3.NotFoundException("user not exist")
 
 
 
