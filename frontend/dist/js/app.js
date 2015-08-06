@@ -207,7 +207,8 @@
             url: '/main',
             views: {
                 'header': {
-                    templateUrl: 'app/common/views/header.html'
+                    templateUrl: 'app/common/views/header.html',
+                    controller: 'HeaderCtrl'
                 },
                 'container':{
                     templateUrl: 'app/main/views/container-main.html'
@@ -222,7 +223,8 @@
             url: '/index',
             views: {                
                 'container-inside':{
-                    templateUrl: 'app/main/views/textboxes.html'
+                    templateUrl: 'app/main/views/textboxes.html',
+                    controller: 'LinksFormCtrl'
                 },
                 'footer':{
                     templateUrl: 'app/common/views/footer.html'
@@ -316,8 +318,8 @@
 (function(namespace, undefined) {
     'use strict';
 
-    var HeaderController = ['$scope', '$http', '$stateParams', 'GlobalUser', 'cssInjector', '$rootScope', '$location',
-        function($scope, $http, $stateParams, GlobalUser, cssInjector, $rootScope, $location) {
+    var HeaderController = ['$scope', '$http', '$stateParams', 'GlobalUser', 'cssInjector', '$rootScope', '$location', '__HeaderActions',
+        function($scope, $http, $stateParams, GlobalUser, cssInjector, $rootScope, $location, __HeaderActions) {
 
             //cssInjector.add("/assets/css/main.css");
 
@@ -370,6 +372,10 @@
 
             $scope.doTheBack = function() {
                 window.history.back();
+            };
+
+            $scope.save_links = function(){                
+                __HeaderActions.SaveLinks();
             };
 
         }
@@ -947,98 +953,6 @@ BackOffice.filter('TrimQuote', function() {
 }(this));
 
 ;(function(namespace, undefined) {
-	'use strict';
-
-	var EmailServices = ['$http','GlobalSettings',
-		function($http, GlobalSettings, transformRequestAsFormPost ) {
-			var MandrillEmailServices = {
-				sendEmail: function(from, to, subject, type, content, autotextEnabled, trackOpensEnabled, trackClicksEnabled) {
-					var m = new mandrill.Mandrill(GlobalSettings.mandrillKey);
-
-					var params = {
-						'message': ''
-					};
-					params.message = {
-						from_email: from,
-						to: [],
-						subject: subject,
-						autotext: autotextEnabled,
-						track_opens: trackOpensEnabled,
-						track_clicks: trackClicksEnabled
-					};
-					if (type === "html") {
-						params.message.text = content;
-					} else {
-						params.message.html = content; //$sanitize(content);
-					}
-					angular.forEach(to, function(person, key) {
-						params.message.to.push({
-							email: person
-						});
-
-					});
-
-					m.messages.send(params, function(res) {
-						//console.log(res);
-						return true;
-					}, function(err) {
-						return false;
-					});
-				},
-				sendEmailFromTemplate: function(from, to, subject, templatename, tags, autotextEnabled, trackOpensEnabled, trackClicksEnabled, success, error) {
-					var m = new mandrill.Mandrill(GlobalSettings.mandrillKey);
-
-					var params = {
-						'message': '',
-						'template_name': templatename,
-						'template_content': []
-					};
-					params.message = {
-						from_email: from,
-						to: [],
-						subject: subject,
-						autotext: autotextEnabled,
-						track_opens: trackOpensEnabled,
-						track_clicks: trackClicksEnabled,
-						merge_vars: []
-					};
-
-
-					angular.forEach(to, function(person, key) {
-						params.message.to.push({
-							email: person
-						});
-						params.message.merge_vars.push({
-							rcpt:person,
-							vars:tags
-						});
-
-					});
-
-                    var extra_params = {'auto_text': autotextEnabled, 'track_opens': trackOpensEnabled, 'track_clicks': trackClicksEnabled};
-                    var data = {'sender': from, 'sender_name': 'Signature Products Portal', 'to': params.message.to, 'template': templatename, 'subject': subject, 'merge_vars': params.message.merge_vars, 'extra_params': extra_params};
-                    var data_json =JSON.stringify(data);
-
-                    //send mails api
-                    var post = {
-                        method: 'POST',
-                        url: GlobalSettings.apiURL + '/' + GlobalSettings.apiEndPointGlobal + '/' + GlobalSettings.apiVersion + '/global_emails/emails',
-                        data: data_json,
-                        contentType : "application/json",
-                        dataType: 'json'
-                    };
-
-                    return $http(post);
-				}
-			};
-			return MandrillEmailServices;
-		}
-	];
-	angular.module('Shared').service('__Email', EmailServices);
-
-}(this));
-
-;(function(namespace, undefined) {
     'use strict';
 
     var GlobalPortalServices = ['$http', 'GlobalUser', '$rootScope', '$location','$timeout',
@@ -1102,6 +1016,22 @@ BackOffice.filter('TrimQuote', function() {
 
 }(this));
 
+;(function(namespace, undefined) {
+  'use strict';
+
+  var ModalWindowFactory = ['$rootScope', function ($rootScope) {
+        var SaveLinks = function () {           
+            $rootScope.$broadcast('save:links');
+        };
+
+        return {
+            SaveLinks: SaveLinks
+        };
+    }
+  ];
+  angular.module('Shared').service('__HeaderActions', ModalWindowFactory);
+
+}(this));
 ;(function(namespace, undefined) {
   'use strict';
 
@@ -1186,15 +1116,59 @@ BackOffice.filter('TrimQuote', function() {
 		function($scope, $http, $stateParams, cssInjector, $location, GlobalUser, __Login) {
 			
 			$scope.user = {
-				username: "",
-				password: ""
+				username: {
+					val: "",
+					error:"",
+					success:""
+				},
+				password: {
+					val:"",
+					error:"",
+					success:""
+				},				
 			};
 
-			$scope.signin = function(){				
-				__Login.setLoginData({
-					'username': $scope.user.username,
-					'password': $scope.user.password});
-			};			
+			$scope.signin = function(){	
+				if($scope.user.username.val && $scope.user.password.val){
+					if(validate_username($scope.user.username.val)){
+						if(validate_password($scope.user.password.val)){
+							__Login.setLoginData({
+								'username': $scope.user.username.val,
+								'password': $scope.user.password.val}).error(function(data){
+									$scope.general_error = "User or Password is Empty";
+								});
+						}else{
+							$scope.user.password.error = "Incorrect Password";
+						}
+					}else{
+						$scope.user.username.error = "Incorrect username";
+					}
+				}else{
+					$scope.general_error = "User or Password is Empty";
+				}					
+			};	
+
+			var validate_username = function(username){
+				if(username.length < 9){
+					if(/^[0-9a-zA-Z]+$/.test(username)){						
+						return true;
+					}else{						
+						return false;
+					}
+				}   
+
+			};		
+
+			var validate_password = function(password){
+				if(password.length < 9){
+					if(/^[0-9a-zA-Z]+$/.test(password)){
+						return true;
+					}else{
+						return false;
+					}
+				}
+			};
+
 		}
 	];
 	angular.module('Login').controller('SignInCtrl', SignInController);
@@ -1220,14 +1194,12 @@ BackOffice.filter('TrimQuote', function() {
                     var self = this;
                     var userinfo = self.getGlobalLoggedUser(params);
 
-                    userinfo.then(function(response) {
-                        console.log(response);
+                    userinfo.then(function(response) {                        
                         if (response.data.email === "") {
                             GlobalUser.logged = false;
                         } else {
                             GlobalUser.logged = true;
-                            GlobalUser.email = response.data.email;
-                            console.log(GlobalUser.email);
+                            GlobalUser.email = response.data.email;                            
                             GlobalUser.user = response.data.user;
                             $location.path('/main/index');
                             $timeout(function() {
@@ -1267,5 +1239,111 @@ BackOffice.filter('TrimQuote', function() {
         }
     ];
     angular.module('Login').service('__Login', GlobalPortalServices);
+
+}(this));
+
+(function(namespace, undefined) {
+	'use strict';
+
+	var LinksFormController = ['GlobalUser', '$scope', '$http', '$stateParams',  'cssInjector','$location', '__Login', '$rootScope', '__LinkService',
+		function(GlobalUser, $scope, $http, $stateParams, cssInjector, $location, __Login, $rootScope, __LinkService) {
+			$('.collapsible').collapsible({
+      			accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+		    });
+
+		    $scope._links = {
+				link_1: "",
+				link_2: "",
+				link_3: "",
+				link_4: "",
+				link_5: "",
+				link_6: "",
+				link_7: "",
+				link_8: "",
+				link_9: "",
+				link_10: ""
+			};
+
+		    var public_link_list = __LinkService.RequestPublicLinks({
+		    	'user': GlobalUser.user
+		    });
+
+		    public_link_list.success(function(data){		    	
+		    	$scope._links = {
+					link_1: data.link_1,
+					link_2: data.link_2,
+					link_3: data.link_3,
+					link_4: data.link_4,
+					link_5: data.link_5
+				};
+		    }).error(function(data){
+		    	console.log('A error ocurred');
+		    });    
+
+			$scope.$on('save:links', function(event) {                				
+                __LinkService.SaveLinks({
+                	'link_1': $scope._links.link_1,
+                	'link_2': $scope._links.link_2,
+                	'link_3': $scope._links.link_3,
+                	'link_4': $scope._links.link_4,
+                	'link_5': $scope._links.link_5,
+                	'link_6': $scope._links.link_6,
+                	'link_7': $scope._links.link_7,
+                	'link_8': $scope._links.link_8,
+                	'link_9': $scope._links.link_9,
+                	'link_10': $scope._links.link_10,
+                	'user':  GlobalUser.user          	
+                });
+            });					
+		}
+	];
+	angular.module('Main').controller('LinksFormCtrl', LinksFormController);
+
+})(this);
+;(function(namespace, undefined) {
+    'use strict';
+
+    var LinksServices = ['$http', 'GlobalUser', 'GlobalSettings','$rootScope', '$location','$timeout',
+
+        function($http, GlobalUser, GlobalSettings, $rootScope, $location,$timeout) {
+            var GPservices = {
+                SaveLinks: function(params) {                    
+                    var save = $http({
+                        'method': 'POST',                        
+                        'url': GlobalSettings.apiURL + '/' + GlobalSettings.apiEndPoint + '/' + GlobalSettings.apiVersion + '/collections/save_links',
+                        'data': JSON.stringify(params),
+                        'contentType' : "application/json",
+                        'dataType': 'json'
+                    });
+
+                    return save;
+                },
+                RequestPublicLinks: function(params) {                    
+                    var request = $http({
+                        'method': 'POST',
+                        'url': GlobalSettings.apiURL + '/' + GlobalSettings.apiEndPoint + '/' + GlobalSettings.apiVersion + '/collections/links/public/list',
+                        'data': JSON.stringify(params),
+                        'contentType' : "application/json",
+                        'dataType': 'json'
+                    });
+
+                    return request;
+                },
+                RequestPrivateLinks: function(params) {
+                    var request = $http({
+                        'method': 'POST',
+                        'url': GlobalSettings.apiURL + '/' + GlobalSettings.apiEndPoint + '/' + GlobalSettings.apiVersion + '/collections/links/private/list',
+                        'data': JSON.stringify(params),
+                        'contentType' : "application/json",
+                        'dataType': 'json'
+                    });
+
+                    return request;
+                }
+            };
+            return GPservices;
+        }
+    ];
+    angular.module('Main').service('__LinkService', LinksServices);
 
 }(this));

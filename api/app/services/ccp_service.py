@@ -59,7 +59,7 @@ class CcpService(Service):
         else:
             raise f3.BadRequestException("user or password doesn't specified")
 
-    @auto_method(path='auth/save_links', name="save_links", http_method="POST")
+    @auto_method(path='save_links', name="save_links", http_method="POST")
     def save_links(self, request=(GenericLink,)):
         try:
             link = Links(

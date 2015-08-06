@@ -10,7 +10,8 @@
             url: '/main',
             views: {
                 'header': {
-                    templateUrl: 'app/common/views/header.html'
+                    templateUrl: 'app/common/views/header.html',
+                    controller: 'HeaderCtrl'
                 },
                 'container':{
                     templateUrl: 'app/main/views/container-main.html'
@@ -25,7 +26,8 @@
             url: '/index',
             views: {                
                 'container-inside':{
-                    templateUrl: 'app/main/views/textboxes.html'
+                    templateUrl: 'app/main/views/textboxes.html',
+                    controller: 'LinksFormCtrl'
                 },
                 'footer':{
                     templateUrl: 'app/common/views/footer.html'

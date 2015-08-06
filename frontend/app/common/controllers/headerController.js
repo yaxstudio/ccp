@@ -1,8 +1,8 @@
 (function(namespace, undefined) {
     'use strict';
 
-    var HeaderController = ['$scope', '$http', '$stateParams', 'GlobalUser', 'cssInjector', '$rootScope', '$location',
-        function($scope, $http, $stateParams, GlobalUser, cssInjector, $rootScope, $location) {
+    var HeaderController = ['$scope', '$http', '$stateParams', 'GlobalUser', 'cssInjector', '$rootScope', '$location', '__HeaderActions',
+        function($scope, $http, $stateParams, GlobalUser, cssInjector, $rootScope, $location, __HeaderActions) {
 
             //cssInjector.add("/assets/css/main.css");
 
@@ -55,6 +55,10 @@
 
             $scope.doTheBack = function() {
                 window.history.back();
+            };
+
+            $scope.save_links = function(){                
+                __HeaderActions.SaveLinks();
             };
 
         }

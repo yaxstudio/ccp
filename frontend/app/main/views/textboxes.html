@@ -1,27 +1,88 @@
-<form class="col s12">      
-  <div class="row">
-    <div class="input-field col s12">
-      <input id="txt_cp1" type="text" class="validate">      
-    </div>
-  </div>
-  <div class="row">
-    <div class="input-field col s12">
-      <input id="txt_cp2" type="text" class="validate">      
-    </div>
-  </div>
-  <div class="row">
-    <div class="input-field col s12">
-      <input id="txt_cp3" type="text" class="validate">      
-    </div>
-  </div>
-  <div class="row">
-    <div class="input-field col s12">
-      <input id="txt_cp4" type="text" class="validate">
-    </div>
-  </div>  
-  <div class="row">
-    <div class="input-field col s12">
-      <input id="txt_cp5" type="text" class="validate">
-    </div>
-  </div>  
+<form class="col s12"> 
+    <ul class="collapsible popout" data-collapsible="accordion">
+          <li>
+            <div class="collapsible-header active">
+                <i class="material-icons md-light">filter_drama</i>Public Links
+            </div>
+            <div class="collapsible-body">
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_1" id="txt_cp1" type="text" class="validate">                                 
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_2" id="txt_cp2" type="text" class="validate">      
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_3" id="txt_cp3" type="text" class="validate">      
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_4" id="txt_cp4" type="text" class="validate">
+                        </div>
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_5" id="txt_cp5" type="text" class="validate">
+                        </div>
+                    </div>
+                </div>  
+            </div>
+          </li>
+          <li>
+            <div class="collapsible-header">
+                <i class="material-icons md-light md-inactive">cloud</i>Private Links
+            </div>
+            <div class="collapsible-body">
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_6" id="txt_cp1" type="text" class="validate">      
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_7" id="txt_cp2" type="text" class="validate">      
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_8" id="txt_cp3" type="text" class="validate">      
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_9" id="txt_cp4" type="text" class="validate">
+                        </div>
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="container">
+                        <div class="input-field col s12">
+                            <input ng-model="_links.link_10" id="txt_cp5" type="text" class="validate">
+                        </div>
+                    </div>
+                </div>  
+            </div>
+          </li>
+    </ul>        
 </form>

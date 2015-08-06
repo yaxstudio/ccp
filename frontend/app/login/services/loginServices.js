@@ -18,14 +18,12 @@
                     var self = this;
                     var userinfo = self.getGlobalLoggedUser(params);
 
-                    userinfo.then(function(response) {
-                        console.log(response);
+                    userinfo.then(function(response) {                        
                         if (response.data.email === "") {
                             GlobalUser.logged = false;
                         } else {
                             GlobalUser.logged = true;
-                            GlobalUser.email = response.data.email;
-                            console.log(GlobalUser.email);
+                            GlobalUser.email = response.data.email;                            
                             GlobalUser.user = response.data.user;
                             $location.path('/main/index');
                             $timeout(function() {
