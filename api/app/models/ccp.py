@@ -3,11 +3,18 @@
 from google.appengine.ext import ndb
 
 
+class SharedUser(ndb.Model):
+    username = ndb.StringProperty(required=True)
+    email = ndb.StringProperty(required=True)
+    user_key = ndb.StringProperty(required=True)
+
+
 class User(ndb.Model):
     username = ndb.StringProperty(required=True)
     password = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
     is_active = ndb.BooleanProperty(default=True)
+    account_shared_with_me = ndb.StructuredProperty(SharedUser, repeated=True)
 
 
 class Links(ndb.Model):
